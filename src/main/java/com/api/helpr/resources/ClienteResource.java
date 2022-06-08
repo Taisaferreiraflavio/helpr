@@ -64,7 +64,7 @@ public class ClienteResource {
 		return ResponseEntity.ok().body(new ClienteDTO(obj));
 	}
 	
-	//Exclusão de cliente com o uso do serviço
+	//  Exclusão de cliente com o uso do serviço
 	@DeleteMapping(value= "{id")
 	public ResponseEntity<ClienteDTO> delete(@PathVariable Integer id) {
 		service.delete(id);
