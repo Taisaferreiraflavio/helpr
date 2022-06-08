@@ -45,6 +45,28 @@ public class ClienteService {
 			return repository.save(newObj);
 		}
 		
+		
+		//Metodo para modificar clientes existentes.
+		public Cliente update (Integer id, ClienteDTO objDto) {
+			objDto.setId(id);
+			Cliente oldObj = findById(id);
+			validaCpfEEmail(objDto);
+			oldObj = new Cliente(objDto);
+			return repository.save(oldObj);
+		}
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
 		//Validará os CPFS E Emails para update e create
 		private void validaCpfEEmail(ClienteDTO objDto) {
 			Optional<Pessoa> obj = pessoaRepository.findByCpf(objDto.getCpf());
@@ -56,6 +78,9 @@ public class ClienteService {
 				throw new DataIntegrityViolationException("E-mail já cadastrado no sistema!");
 			}
 		}
+		
+		
+		
 	
 
 
