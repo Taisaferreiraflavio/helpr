@@ -1,5 +1,6 @@
 package com.api.helpr.repositories;
 
+
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -7,8 +8,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.api.helpr.domain.Pessoa;
 
 public interface PessoaRepository extends JpaRepository<Pessoa, Integer> {
-
+	
 	Optional<Pessoa> findByCpf(String cpf);
+	Optional <Pessoa> findByEmail(String email);
 
-	Optional<Pessoa> findByEmail(String email);
+
 }
