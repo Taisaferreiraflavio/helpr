@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.api.helpr.domain.Chamado;
 import com.api.helpr.domain.Cliente;
 import com.api.helpr.domain.Pessoa;
 import com.api.helpr.domain.dtos.ClienteDTO;
@@ -40,6 +41,17 @@ public class ClienteService {
 		public List<Cliente> findAllClientes(){
 			return repository.findAll();
 		}
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
 		
 		//Metodo que fará a criação de novo cliente
 		public Cliente create(ClienteDTO objDto) {

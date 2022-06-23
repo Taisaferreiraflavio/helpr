@@ -1,7 +1,5 @@
 package com.api.helpr.resources;
 
-
-
 import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,59 +20,57 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.api.helpr.domain.Cliente;
+import com.api.helpr.domain.dtos.ChamadoDTO;
 import com.api.helpr.domain.dtos.ClienteDTO;
 import com.api.helpr.services.ClienteService;
 
 @RestController
 @RequestMapping(value = "/service/clientes")
 public class ClienteResource {
-	
+
 	@Autowired
 	private ClienteService service;
-	
-	//Resposta Cliente por Cliente
+
+	// Resposta Cliente por Cliente
 	@GetMapping(value = "/{id}")
-	public ResponseEntity<ClienteDTO> findById(@PathVariable Integer id){
-		Cliente obj = service.findById(id);	
-	return ResponseEntity.ok().body(new ClienteDTO(obj));
+	public ResponseEntity<ClienteDTO> findById(@PathVariable Integer id) {
+		Cliente obj = service.findById(id);
+		return ResponseEntity.ok().body(new ClienteDTO(obj));
 	}
-	
-	//Resposta todos os Clientes
+
+	// Resposta todos os Clientes
 	@GetMapping
-	public ResponseEntity<List<ClienteDTO>> findAllClientes(){
+	public ResponseEntity<List<ClienteDTO>> findAllClientes() {
 		List<Cliente> list = service.findAllClientes();
-		List<ClienteDTO> listDto = list.stream()
-				.map(cli -> new ClienteDTO(cli)).collect(Collectors.toList());
+		List<ClienteDTO> listDto = list.stream().map(cli -> new ClienteDTO(cli)).collect(Collectors.toList());
 		return ResponseEntity.ok().body(listDto);
 	}
+
 	
-	//Inserção de dados cliente
+
+	// Inserção de dados cliente
 	@PreAuthorize("hasAnyRole('ROLE_TECNICO')")
 	@PostMapping
-	public ResponseEntity<ClienteDTO>
-	createCliente(@Valid @RequestBody ClienteDTO objDto){
+	public ResponseEntity<ClienteDTO> createCliente(@Valid @RequestBody ClienteDTO objDto) {
 		Cliente newObj = service.create(objDto);
 		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(newObj.getId()).toUri();
 		return ResponseEntity.created(uri).build();
 	}
-	
-	//Alteração de dados Clientes
+
+	// Alteração de dados Clientes
 	@PreAuthorize("hasAnyRole('ROLE_TECNICO')")
 	@PutMapping(value = "/{id}")
-	public ResponseEntity<ClienteDTO> updateCliente(
-			@PathVariable Integer id, @RequestBody ClienteDTO objDto){
-		Cliente obj = service.update(id,  objDto);
+	public ResponseEntity<ClienteDTO> updateCliente(@PathVariable Integer id, @RequestBody ClienteDTO objDto) {
+		Cliente obj = service.update(id, objDto);
 		return ResponseEntity.ok().body(new ClienteDTO(obj));
 	}
-	
-	//  Exclusão de cliente com o uso do serviço
+
+	// Exclusão de cliente com o uso do serviço
 	@PreAuthorize("hasAnyRole('ROLE_TECNICO')")
-	@DeleteMapping(value= "{id")
+	@DeleteMapping(value = "{id")
 	public ResponseEntity<ClienteDTO> delete(@PathVariable Integer id) {
 		service.delete(id);
 		return ResponseEntity.noContent().build();
 	}
-		
-	
-	
+
 }
