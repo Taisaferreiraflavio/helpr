@@ -11,11 +11,14 @@ import org.springframework.stereotype.Service;
 
 import com.api.helpr.domain.Chamado;
 import com.api.helpr.domain.Cliente;
+import com.api.helpr.domain.LogChamadoStatus;
 import com.api.helpr.domain.Tecnico;
 import com.api.helpr.domain.dtos.ChamadoDTO;
+import com.api.helpr.domain.dtos.ClienteDTO;
 import com.api.helpr.domain.enums.Prioridade;
 import com.api.helpr.domain.enums.Status;
 import com.api.helpr.repositories.ChamadoRepository;
+import com.api.helpr.repositories.LogChamadoStatusRepository;
 import com.api.helpr.repositories.PessoaRepository;
 import com.api.helpr.services.exceptions.ObjectNotFoundException;
 
@@ -24,23 +27,26 @@ public class ChamadoService {
 
 	@Autowired
 	private ChamadoRepository repository;
-	@Autowired
-	private TecnicoService tecnicoService;
-	@Autowired
-	private ClienteService clienteService;
 	
 	@Autowired
-	private PessoaRepository pessoaRepository;
+	private LogChamadoStatusRepository logChamadoRepository;
+	
+	@Autowired
+	private TecnicoService tecnicoService;
+	
+	@Autowired
+	private ClienteService clienteService;
+
 	
 	public Chamado findById(Integer id) {
 		Optional<Chamado> obj = repository.findById(id);
-		return obj.orElseThrow(() -> new ObjectNotFoundException("Chamado não foi encontrado: " + id));
-	}	
-	
-	public List<Chamado> findAll(){
-		return repository.findAll();
+		return obj.orElseThrow(() -> new ObjectNotFoundException("Objeto não foi encontrado: " + id));
 	}
 
+	public List<Chamado> findAll() {
+		return repository.findAll();
+	}
+	
 	public Chamado create(@Valid ChamadoDTO objDto) {
 		return repository.save(newChamado(objDto));
 	}
@@ -52,21 +58,21 @@ public class ChamadoService {
 		return repository.save(oldObj);
 	}
 	
-	
-	public List<Chamado> reportChamadoTecnico(Integer tecnico){
+	public List<Chamado> reportChamadoTecnico(Integer tecnico) {
 		return repository.findByTecnico(tecnico);
 	}
 	
-	
-	public List<Chamado> reportChamadoCliente(Integer cliente){
+	public List<Chamado> reportChamadoCliente(Integer cliente) {
 		return repository.findByCliente(cliente);
 	}
 	
+	public List<LogChamadoStatus> findDiaLogChamado(LocalDate dataDia) {
+		return logChamadoRepository.findLogChamadoStatusDia(dataDia);
+	}
 	
-	private Chamado newChamado(ChamadoDTO obj) {
+	public Chamado newChamado(ChamadoDTO obj) {
 		Tecnico tecnico = tecnicoService.findById(obj.getTecnico());
 		Cliente cliente = clienteService.findById(obj.getCliente());
-		
 		
 		Chamado chamado = new Chamado();
 		
@@ -78,8 +84,6 @@ public class ChamadoService {
 			chamado.setDataFechamento(LocalDate.now());
 		}
 		
-		
-		
 		chamado.setTecnico(tecnico);
 		chamado.setCliente(cliente);
 		chamado.setPrioridade(Prioridade.toEnum(obj.getPrioridade()));
@@ -87,8 +91,6 @@ public class ChamadoService {
 		chamado.setTitulo(obj.getTitulo());
 		chamado.setObservacoes(obj.getObservacoes());
 		return chamado;
-		}
+	}
 
-	
-	
 }

@@ -11,4 +11,5 @@ BEGIN
     VALUES(NOW(), OLD.status, NEW.status, NULL);
     END IF;
     END //
+    
     DELIMITER ;
