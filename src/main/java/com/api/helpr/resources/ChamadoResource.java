@@ -1,6 +1,7 @@
 package com.api.helpr.resources;
 
 import java.net.URI;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,7 +20,10 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.api.helpr.domain.Chamado;
+import com.api.helpr.domain.Cliente;
+import com.api.helpr.domain.LogChamadoStatus;
 import com.api.helpr.domain.dtos.ChamadoDTO;
+import com.api.helpr.domain.dtos.ClienteDTO;
 import com.api.helpr.services.ChamadoService;
 
 @RestController
@@ -36,40 +40,49 @@ public class ChamadoResource {
 	}
 
 	@GetMapping
-	public ResponseEntity<List<ChamadoDTO>> findAll() {
+	public ResponseEntity<List<ChamadoDTO>> findAllChamados() {
 		List<Chamado> list = service.findAll();
 		List<ChamadoDTO> listDto = list.stream().map(obj -> new ChamadoDTO(obj)).collect(Collectors.toList());
 		return ResponseEntity.ok().body(listDto);
 	}
-
-	@GetMapping(value = "/relatorios/cliente/{cliente}")
-	public ResponseEntity<List<ChamadoDTO>> findReportChamadoCliente(@PathVariable Integer cliente) {
-		List<Chamado> reportList = service.reportChamadoCliente(cliente);
-		List<ChamadoDTO> listDto = reportList.stream().map(rel -> new ChamadoDTO(rel)).collect(Collectors.toList());
-		return ResponseEntity.ok().body(listDto);
-	}
-
-	@GetMapping(value = "/relatorios/tecnico/{tecnico}")
-	public ResponseEntity<List<ChamadoDTO>> findReportChamadoTecnico(@PathVariable Integer tecnico) {
+	
+	@PreAuthorize("hasAnyRole('ROLE_TECNICO')")
+	@GetMapping(value="/relatorios/tecnicos/{tecnico}")
+	public ResponseEntity<List<ChamadoDTO>> findReportChamadoTecnico(@PathVariable Integer tecnico){
 		List<Chamado> reportList = service.reportChamadoTecnico(tecnico);
 		List<ChamadoDTO> listDto = reportList.stream().map(rel -> new ChamadoDTO(rel)).collect(Collectors.toList());
 		return ResponseEntity.ok().body(listDto);
 	}
-
+	
+	@PreAuthorize("hasAnyRole('ROLE_TECNICO')")
+	@GetMapping(value="/relatorios/clientes/{cliente}")
+	public ResponseEntity<List<ChamadoDTO>> findReportChamadoCliente(@PathVariable Integer cliente){
+		List<Chamado> reportList = service.reportChamadoCliente(cliente);
+		List<ChamadoDTO> listDto = reportList.stream().map(rel -> new ChamadoDTO(rel)).collect(Collectors.toList());
+		return ResponseEntity.ok().body(listDto);
+	}
+	
 	@PreAuthorize("hasAnyRole('ROLE_TECNICO')")
 	@PostMapping
-	public ResponseEntity<ChamadoDTO> create(@Valid @RequestBody ChamadoDTO objDto) {
-		Chamado obj = service.create(objDto);
-		URI uri = ServletUriComponentsBuilder.fromCurrentRequestUri().path("/{id}").buildAndExpand(obj.getId()).toUri();
+	public ResponseEntity<ChamadoDTO> createChamado(@Valid @RequestBody ChamadoDTO objDto){
+		Chamado newObj = service.create(objDto);
+		URI uri = ServletUriComponentsBuilder.fromCurrentRequestUri()
+				.path("/{id}").buildAndExpand(newObj.getId()).toUri();
 		return ResponseEntity.created(uri).build();
 	}
-
+	
 	@PreAuthorize("hasAnyRole('ROLE_TECNICO')")
 	@PutMapping(value = "/{id}")
-	public ResponseEntity<ChamadoDTO> update(@PathVariable Integer id, @Valid @RequestBody ChamadoDTO objDto) {
+	public ResponseEntity<ChamadoDTO> update(@PathVariable Integer id, @Valid @RequestBody ChamadoDTO objDto){
 		Chamado newObj = service.update(id, objDto);
 		return ResponseEntity.ok().body(new ChamadoDTO(newObj));
-
 	}
 
+	@GetMapping(value="/log/status")
+	public ResponseEntity<List<LogChamadoStatus>> findLogStatusChamado(){
+		LocalDate dataDia = LocalDate.now();
+		List<LogChamadoStatus> logList = service.findDiaLogChamado(dataDia);
+		return ResponseEntity.ok().body(logList);
+	}
+	
 }
